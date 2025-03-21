@@ -6,8 +6,6 @@ spring:
     username: ${POSTGRES_USER}  # 환경 변수 사용
     password: ${POSTGRES_PASSWORD}  # 환경 변수 사용
     driver-class-name: org.postgresql.Driver
-  profiles:
-    active: prod
 
   jpa:
     hibernate:
