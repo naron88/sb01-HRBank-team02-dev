@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: HRBank
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hr_bank
+    username: team02
+    password: team02314
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        default_schema: public
+
+hrbank:
+  storage:
+    type: local
+    local:
+      paths:
+        binary-content-path: .hrbank/binaryContentStorage
+        employees-path: .hrbank/employeesStorage
+        error-log-path: .hrbank/errorLogStorage
