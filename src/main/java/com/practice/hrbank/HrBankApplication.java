@@ -6,9 +6,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
+
 @EnableScheduling
 @EnableJpaAuditing
+@SpringBootApplication(scanBasePackages = "com.practice.hrbank")
 public class HrBankApplication {
 
   public static void main(String[] args) {
