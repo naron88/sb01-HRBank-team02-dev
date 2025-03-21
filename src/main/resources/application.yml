@@ -17,7 +17,6 @@ spring:
 
 hrbank:
   storage:
-    type: local
     local:
       paths:
         binary-content-path: .hrbank/binaryContentStorage

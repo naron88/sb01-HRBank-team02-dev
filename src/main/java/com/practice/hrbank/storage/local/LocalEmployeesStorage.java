@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "hrbank.storage.type", havingValue = "local")
 public class LocalEmployeesStorage implements EmployeesStorage {
 
   private final Path root;
