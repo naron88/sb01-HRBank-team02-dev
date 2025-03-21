@@ -2,9 +2,9 @@ spring:
   application:
     name: HRBank
   datasource:
-    url: jdbc:postgresql://postgres.railway.internal:5432/railway
-    username: ${POSTGRES_USER}  # 환경 변수 사용
-    password: ${POSTGRES_PASSWORD}  # 환경 변수 사용
+    url: jdbc:postgresql://yamanote.proxy.rlwy.net:55387/railway
+    username: postgres  # 환경 변수 사용
+    password: nTwuYLVOfyPHBLGRgWuVhTQCdizBduOK  # 환경 변수 사용
     driver-class-name: org.postgresql.Driver
 
   jpa:
