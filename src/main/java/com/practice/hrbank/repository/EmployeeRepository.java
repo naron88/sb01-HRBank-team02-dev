@@ -19,8 +19,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>,
 
   Page<Employee> findAll(Specification<Employee> spec, Pageable pageable);
 
-  @Query("SELECT e.employeeNumber FROM Employee e WHERE e.employeeNumber LIKE :yearPrefix ORDER BY e.employeeNumber DESC")
-  String findLatestEmployeeNumberByYear(@Param("yearPrefix") int yearPrefix);
+  @Query(value = "SELECT e.employee_number FROM employees e WHERE e.employee_number LIKE :yearPrefix ORDER BY e.employee_number DESC LIMIT 1", nativeQuery = true)
+  Optional<String> findLatestEmployeeNumberByYear(@Param("yearPrefix") String yearPrefix);
 
   // 특정 날짜 이전에 입사한 직원 수 조회
   int countByHireDateBefore(LocalDate date);

@@ -7,6 +7,7 @@ import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.ChangeLog;
 import com.practice.hrbank.repository.ChangeLogRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,14 +18,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChangeLogService {
 
     private final ChangeLogRepository changeLogRepository;
     private final ObjectMapper objectMapper;
+    private final Random random = new Random();
 
     public CursorPageResponseChangeLogDto getChangeLogs(ChangeLogRequestDto requestDto) {
         String sortField = (requestDto.sortField() != null) ? requestDto.sortField() : "at";
@@ -67,7 +71,7 @@ public class ChangeLogService {
     }
 
     public void save(ChangeLogCreateRequest changeLogCreateRequest) {
-        List<DiffDto> detail = getdiff(changeLogCreateRequest.beforeEmployeeDto(), changeLogCreateRequest.afterEmployeeDto());
+        List<DiffDto> detail = getdiff(changeLogCreateRequest);
 
         try {
             String detailJson = objectMapper.writeValueAsString(detail);
@@ -87,60 +91,56 @@ public class ChangeLogService {
                             changeLogCreateRequest.beforeEmployeeDto().employeeNumber(),
                             detailJson,
                             changeLogCreateRequest.memo(),
-                            changeLogCreateRequest.ipAddress()
-                    ));
+                            changeLogCreateRequest.ipAddress()));
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private List<DiffDto> getdiff(EmployeeDto beforeEmployeeDto, EmployeeDto afterEmployeeDto) {
+    private List<DiffDto> getdiff(ChangeLogCreateRequest changeLogCreateRequest) {
 
         List<DiffDto> diffs = new ArrayList<>();
+        EmployeeDto beforeDto = changeLogCreateRequest.beforeEmployeeDto();
+        EmployeeDto afterDto = changeLogCreateRequest.afterEmployeeDto();
 
-        // 신규 등록
-        if (beforeEmployeeDto == null) {
-            diffs.add(new DiffDto("입사일", null, String.valueOf(afterEmployeeDto.hireDate())));
-            diffs.add(new DiffDto("이름", null, afterEmployeeDto.name()));
-            diffs.add(new DiffDto("직함", null, afterEmployeeDto.position()));
-            diffs.add(new DiffDto("부서명", null, afterEmployeeDto.departmentName()));
-            diffs.add(new DiffDto("이메일", null, afterEmployeeDto.email()));
-            diffs.add(new DiffDto("사번", null, afterEmployeeDto.employeeNumber()));
-            diffs.add(new DiffDto("상태", null, String.valueOf(afterEmployeeDto.status())));
-            return diffs;
-        }
-        // 삭제
-        if (afterEmployeeDto == null) {
-            diffs.add(new DiffDto("입사일", String.valueOf(beforeEmployeeDto.hireDate()), null));
-            diffs.add(new DiffDto("이름", beforeEmployeeDto.name(), null));
-            diffs.add(new DiffDto("직함", beforeEmployeeDto.position(), null));
-            diffs.add(new DiffDto("부서명", beforeEmployeeDto.departmentName(), null));
-            diffs.add(new DiffDto("이메일", beforeEmployeeDto.email(), null));
-            diffs.add(new DiffDto("상태", String.valueOf(afterEmployeeDto.status()), null));
+        if (changeLogCreateRequest.changeType() == ChangeLog.Type.CREATED)
+        {
+            diffs.add(new DiffDto("입사일", null, String.valueOf(afterDto.hireDate())));
+            diffs.add(new DiffDto("이름", null, afterDto.name()));
+            diffs.add(new DiffDto("직함", null, afterDto.position()));
+            diffs.add(new DiffDto("부서명", null, afterDto.departmentName()));
+            diffs.add(new DiffDto("이메일", null, afterDto.email()));
+            diffs.add(new DiffDto("사번", null, afterDto.employeeNumber()));
+            diffs.add(new DiffDto("상태", null, String.valueOf(afterDto.status())));
             return diffs;
         }
 
-        // 수정
-        if(afterEmployeeDto.name()!=null && !beforeEmployeeDto.name().equals(afterEmployeeDto.name())) {
-            diffs.add(new DiffDto("이름", beforeEmployeeDto.name(), afterEmployeeDto.name()));
+        if (changeLogCreateRequest.changeType() == ChangeLog.Type.DELETED)
+        {
+            diffs.add(new DiffDto("입사일", String.valueOf(beforeDto.hireDate()), null));
+            diffs.add(new DiffDto("이름", beforeDto.name(), null));
+            diffs.add(new DiffDto("직함", beforeDto.position(), null));
+            diffs.add(new DiffDto("부서명", beforeDto.departmentName(), null));
+            diffs.add(new DiffDto("이메일", beforeDto.email(), null));
+            diffs.add(new DiffDto("사번", beforeDto.employeeNumber(), null));
+            diffs.add(new DiffDto("상태", String.valueOf(beforeDto.status()), null));
+            return diffs;
         }
-        if(afterEmployeeDto.email()!= null && !beforeEmployeeDto.email().equals(afterEmployeeDto.email())) {
-            diffs.add(new DiffDto("이메일", beforeEmployeeDto.email(), afterEmployeeDto.email()));
+
+        if (changeLogCreateRequest.changeType() == ChangeLog.Type.UPDATED)
+        {
+            diffs.add(new DiffDto("입사일", String.valueOf(beforeDto.hireDate()), String.valueOf(afterDto.hireDate())));
+            diffs.add(new DiffDto("이름", beforeDto.name(), afterDto.name()));
+            diffs.add(new DiffDto("직함", beforeDto.position(), afterDto.position()));
+            diffs.add(new DiffDto("부서명", beforeDto.departmentName(), afterDto.departmentName()));
+            diffs.add(new DiffDto("이메일", beforeDto.email(), afterDto.email()));
+            diffs.add(new DiffDto("사번", beforeDto.employeeNumber(), afterDto.employeeNumber()));
+            diffs.add(new DiffDto("상태", String.valueOf(beforeDto.status()), String.valueOf(afterDto.status())));
+            return diffs;
         }
-        if(afterEmployeeDto.departmentName() != null && !beforeEmployeeDto.departmentName().equals(afterEmployeeDto.departmentName())) {
-            diffs.add(new DiffDto("부서", beforeEmployeeDto.departmentName(), afterEmployeeDto.departmentName()));
-        }
-        if(afterEmployeeDto.position() != null && !beforeEmployeeDto.position().equals(afterEmployeeDto.position())) {
-            diffs.add(new DiffDto("직함", beforeEmployeeDto.position(), afterEmployeeDto.position()));
-        }
-        if(afterEmployeeDto.hireDate() != null && !beforeEmployeeDto.hireDate().equals(afterEmployeeDto.hireDate())) {
-            diffs.add(new DiffDto("입사일", String.valueOf(beforeEmployeeDto.hireDate()), String.valueOf(afterEmployeeDto.hireDate())));
-        }
-        if (afterEmployeeDto.status() != null && !beforeEmployeeDto.status().equals(afterEmployeeDto.status())) {
-            diffs.add(new DiffDto("상태", String.valueOf(beforeEmployeeDto.status()), String.valueOf(afterEmployeeDto.status())));
-        }
-        return diffs;
+
+        return null;
     }
 
     public List<DiffDto> getDiffs(Long id) {

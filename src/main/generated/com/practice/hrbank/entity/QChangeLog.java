@@ -19,7 +19,7 @@ public class QChangeLog extends EntityPathBase<ChangeLog> {
 
     public static final QChangeLog changeLog = new QChangeLog("changeLog");
 
-    public final DateTimePath<java.time.Instant> at = createDateTime("at", java.time.Instant.class);
+    public final DateTimePath<java.time.LocalDateTime> at = createDateTime("at", java.time.LocalDateTime.class);
 
     public final StringPath detail = createString("detail");
 

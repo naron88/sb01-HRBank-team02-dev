@@ -35,8 +35,9 @@ public class MetadataService {
   public Metadata createProfile(MultipartFile profile) throws IOException {
     Metadata metadata = new Metadata(profile.getName(), profile.getContentType(),
         profile.getSize());
-    binaryContentStorage.createFile(metadata.getId(), profile.getBytes());
+    System.out.println("profile create service");
     metadataRepository.save(metadata);
+    binaryContentStorage.createFile(metadata.getId(), profile.getBytes());
     return metadata;
   }
 
