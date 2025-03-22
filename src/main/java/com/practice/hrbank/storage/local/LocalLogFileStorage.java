@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "hrbank.storage.type", havingValue = "local")
 public class LocalLogFileStorage {
 
   private final Path root;
