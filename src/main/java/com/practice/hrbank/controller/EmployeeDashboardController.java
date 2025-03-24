@@ -6,6 +6,7 @@ import com.practice.hrbank.service.DashboardService;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +22,13 @@ public class EmployeeDashboardController {
 
   @GetMapping("/stats/trend")
   ResponseEntity<List<EmployeeTrendDto>> getEmployeeTrend(
-      @RequestParam(required = false) LocalDate from,
-      @RequestParam(required = false) LocalDate to,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
       @RequestParam(required = false, defaultValue = "month") String unit
   ) {
+    if (to == null) {
+      to = LocalDate.now(); // 기본값: 현재 날짜
+    }
     List<EmployeeTrendDto> employeeTrendDtoList = dashboardService.getEmployeeTrend(from, to, unit);
     return ResponseEntity.ok(employeeTrendDtoList);
   }
@@ -41,9 +45,12 @@ public class EmployeeDashboardController {
   @GetMapping("/count")
   ResponseEntity<Integer> countEmployees(
       @RequestParam(required = false) String status,
-      @RequestParam(required = false) LocalDate fromDate,
-      @RequestParam(required = false) LocalDate toDate
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
   ) {
+    if (toDate == null) {
+      toDate = LocalDate.now(); // 기본 값: 현재 날짜
+    }
     int count = dashboardService.countEmployees(status, fromDate, toDate);
     return ResponseEntity.ok(count);
   }

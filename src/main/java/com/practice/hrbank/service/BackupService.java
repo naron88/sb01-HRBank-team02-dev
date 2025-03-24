@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class BackupService {
   private final EmployeeRepository employeeRepository;
   private final MetadataService metadataService;
 
+  @Transactional
   public BackupDto create(String clientIp) throws IOException {
     if (isChanged()) {
       Backup backup = new Backup(
@@ -72,12 +74,14 @@ public class BackupService {
     }
   }
 
+  @Transactional(readOnly = true)
   public BackupDto findById(Long id) {
     Backup backup = backupRepository.findById(id)
         .orElseThrow(() -> new NoSuchElementException("Backup not found. id: " + id));
     return backupMapper.toDto(backup);
   }
 
+  @Transactional(readOnly = true)
   public CursorPageResponseBackupDto findAll(String worker, String status,
       Instant startedAtFrom, Instant startedAtTo, Long idAfter, String cursor,
       Integer size, String sortField, String sortDirection) {
@@ -122,7 +126,7 @@ public class BackupService {
     );
   }
 
-
+  @Transactional(readOnly = true)
   public BackupDto findLatest(String status) {
     Status backupStatus = status == null ? Status.COMPLETED : Status.valueOf(status);
     Backup lastBackup = backupRepository.findFirstByStatusOrderByStartedAtDesc(backupStatus)
