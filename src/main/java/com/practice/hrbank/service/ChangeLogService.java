@@ -6,6 +6,8 @@ import com.practice.hrbank.dto.changeLog.*;
 import com.practice.hrbank.dto.employee.EmployeeDto;
 import com.practice.hrbank.entity.ChangeLog;
 import com.practice.hrbank.repository.ChangeLogRepository;
+import java.time.Instant;
+import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -156,9 +158,14 @@ public class ChangeLogService {
     }
 
     public Long getChangeLogCount(String fromDate, String toDate) {
+        ZoneId zoneId = ZoneId.of("UTC");
         // 기본값 설정 (최근 7일)
-        LocalDateTime from = (fromDate != null) ? LocalDateTime.parse(fromDate) : LocalDateTime.now().minusDays(7);
-        LocalDateTime to = (toDate != null) ? LocalDateTime.parse(toDate) : LocalDateTime.now();
+        LocalDateTime from = (fromDate != null)
+            ? Instant.parse(fromDate).atZone(zoneId).toLocalDateTime()
+            : LocalDateTime.now().minusDays(7);
+        LocalDateTime to = (toDate != null)
+            ? Instant.parse(toDate).atZone(zoneId).toLocalDateTime()
+            : LocalDateTime.now();
 
         return changeLogRepository.countByAtBetween(from, to);
     }
