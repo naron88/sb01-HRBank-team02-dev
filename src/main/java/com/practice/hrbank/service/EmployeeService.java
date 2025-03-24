@@ -126,8 +126,10 @@ public class EmployeeService {
     if (request.name() != null && !request.name().isBlank()) {
       employee.updateName(request.name());
     }
-    if ( request.email() != null && !request.email().isBlank()){
-      validateDuplicateEmail(request.email());
+    if (request.email() != null && !request.email().isBlank()){
+      if (!employee.getEmail().equals(request.email())) {
+        validateDuplicateEmail(request.email());
+      }
       employee.updateEmail(request.email());
     }
     if (request.position() != null && !request.position().isBlank()) {
